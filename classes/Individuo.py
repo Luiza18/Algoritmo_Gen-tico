@@ -13,7 +13,7 @@ class Individuo:
         return self.__cromossomo
 
     @property
-    def get_fiteness(self):
+    def get_fitness(self):
         return self.__fitness
 
     def __gerar_cromossomo(self): #permutação das cidades

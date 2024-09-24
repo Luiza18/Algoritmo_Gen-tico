@@ -17,77 +17,80 @@ class AlgoritmoGenetico:
     def __inicializa_populacao(self):
         return [Individuo(self.__numero_cidades) for _ in range(self.__tamanho_populacao)]
 
-    def avalia_fitness(self):
-        for Individuo in self.__populacao:
-            Individuo.calcula_fitness(self.__tsp)
+    def __avalia_fitness(self):
+        for individuo in self.__populacao:
+            individuo.calcula_fitness(self.__tsp)
 
-    def selecao(self):
+    def __selecao(self):
+        total_fitness = sum(individuo.get_fitness for individuo in self.__populacao)  # Calcula fitness de todos os individuos
+        ponto_escolhido = rd.uniform(0, total_fitness)  # Seleciona um ponto aleatório dentro do intervalo
+        fitness_atual = 0
+        for individuo in self.__populacao: 
+            fitness_atual += individuo.get_fitness
+            if fitness_atual > ponto_escolhido:
+                return cp.deepcopy(individuo)
 
-        total_fitness = sum(individuo.get_fiteness() for individuo in self.__populacao)
-        pick = rd.uniform(0, total_fitness)
-        current = 0
-        for Individuo in self.__populacao:
-            current += Individuo.get_fiteness()
-            if current > pick:
-                return cp.deepcopy(Individuo)
-
-    #Refazer essa função
-    def crossover(self, parent1:Individuo, parent2:Individuo):
-        cut_point = rd.randint(1, self.__numero_cidades - 1)
+    def __crossover(self, pai1: Individuo, pai2: Individuo):
+        ponto_corte = rd.randint(1, self.__numero_cidades - 1)
         filho1, filho2 = np.zeros(self.__numero_cidades, dtype=int), np.zeros(self.__numero_cidades, dtype=int)
-        filho1[:cut_point], filho2[:cut_point] = parent1.get_cromossomo()[:cut_point], parent2.get_cromossomo()[:cut_point]
 
-        def fill_filho(filho, parent:Individuo):
-            pos = cut_point
-            for gene in parent.get_cromossomo():
-                if gene not in filho:
-                    filho[pos] = gene
-                    pos += 1
-            return filho
+        # Cópia inicial até o ponto de corte
+        filho1[:ponto_corte], filho2[:ponto_corte] = pai1.get_cromossomo[:ponto_corte], pai2.get_cromossomo[:ponto_corte]
 
-        filho1 = fill_filho(filho1, parent2)
-        filho2 = fill_filho(filho2, parent1)
+        # Preencher o restante do cromossomo
+        filho1 = self.__preencher_filho(filho1, pai2, ponto_corte)
+        filho2 = self.__preencher_filho(filho2, pai1, ponto_corte)
 
         return Individuo(self.__numero_cidades), Individuo(self.__numero_cidades)
 
-    def mutacao(self, Individuo):
+    def __preencher_filho(self, filho, pai: Individuo, pos):
+        if pos >= self.__numero_cidades:  # Se o cromossomo estiver completo, retorna o filho
+            return filho
+
+        # Adiciona o próximo gene que não esteja presente no cromossomo do filho
+        for gene in pai.get_cromossomo:
+            if gene not in filho:
+                filho[pos] = gene
+                return self.__preencher_filho(filho, pai, pos + 1)
+
+    def __mutacao(self, individuo: Individuo):
         # Mutação: troca dois genes aleatórios no cromossomo
         if rd.random() < self.__taxa_mutacao:
-            idx1, idx2 = rd.sample(range(self.n), 2)
-            Individuo.get_cromossomo()[idx1], Individuo.get_cromossomo()[idx2] = Individuo.get_cromossomo()[idx2], Individuo.get_cromossomo()[idx1]
+            idx1, idx2 = rd.sample(range(self.__numero_cidades), 2)
+            individuo.get_cromossomo[idx1], individuo.get_cromossomo[idx2] = individuo.get_cromossomo[idx2], individuo.get_cromossomo[idx1]
 
-    def evolve(self):
+    def __evolucao(self):
         # Ordena a população com base no fitness
-        self.population.sort(key=lambda Individuo: Individuo.get_fiteness(), reverse=True)
+        self.__populacao.sort(key=lambda individuo: individuo.get_fitness, reverse=True)
 
         # Mantém a elite
-        elite_count = int(self.__tamanho_populacao * self.__elite)
-        new_population = self.population[:elite_count]
+        qtd_elite = int(self.__tamanho_populacao * self.__elite)
+        nova_populacao = self.__populacao[:qtd_elite]
 
         # Gera nova população por cruzamento e mutação
-        while len(new_population) < self.__tamanho_populacao:
-            parent1 = self.selecao()
-            parent2 = self.selecao()
+        while len(nova_populacao) < self.__tamanho_populacao:
+            pai1 = self.__selecao()
+            pai2 = self.__selecao()
             if rd.random() < self.__taxa_cruzamento:
-                filho1, filho2 = self.crossover(parent1, parent2)
-                self.mutate(filho1)
-                self.mutate(filho2)
-                new_population.extend([filho1, filho2])
+                filho1, filho2 = self.__crossover(pai1, pai2)
+                self.__mutacao(filho1)
+                self.__mutacao(filho2)
+                nova_populacao.extend([filho1, filho2])
             else:
-                self.mutate(parent1)
-                self.mutate(parent2)
-                new_population.extend([parent1, parent2])
+                self.__mutacao(pai1)
+                self.__mutacao(pai2)
+                nova_populacao.extend([pai1, pai2])
 
-        self.population = new_population[:self.__tamanho_populacao]
+        self.__populacao = nova_populacao[:self.__tamanho_populacao]
 
     def run(self):
         # Executa o algoritmo genético
-        self.evaluate_population()
-        for gen in range(self.__geracoes):
-            self.evolve()
-            self.evaluate_population()
-            best_Individuo = max(self.__populacao, key=lambda ind: ind.get_fiteness())
-            print(f"Geração {gen}: Melhor distância = {1 / best_Individuo.get_fiteness()}")
+        self.__avalia_fitness()
+        for geracao in range(self.__geracoes):
+            self.__evolucao()
+            self.__avalia_fitness()
+            melhor_individuo = max(self.__populacao, key=lambda ind: ind.get_fitness)
+            print(f"Geração {geracao}: Melhor distância = {1 / melhor_individuo.get_fitness}")
 
-        best_solution = max(self.__populacao, key=lambda ind: ind.get_fiteness())
-        return best_solution.get_cromossomo(), 1 / best_solution.get_fiteness()
+        melhor_solucao = max(self.__populacao, key=lambda ind: ind.get_fitness)
+        return melhor_solucao.get_cromossomo, 1 / melhor_solucao.get_fitness
