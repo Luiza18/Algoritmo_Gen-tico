@@ -7,11 +7,9 @@ class TSP():
         self.__max_dist = max_dist
         self.__ditancia_matrix = self.__gerar_problema()
 
-    # Gera matriz de distâncias aleatória para o problema do Caixeiro Viajante
     def __gerar_problema(self):
         return random.randint(self.__min_dist,self.__max_dist,(self.__numero_cidades,self.__numero_cidades))
 
-    # Calcula a distância total do caminho
     def calcular_distancia(self, caminho:list):
         distancia = 0
 
