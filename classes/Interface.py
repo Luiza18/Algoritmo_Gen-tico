@@ -11,12 +11,11 @@ IG =  0.2
 class Interface:
     def __init__(self):
         self.layout = [
-            [sg.Text('Número de Cidades:'), sg.InputText('5', key='num_cidades')],
-            [sg.Text('Distância Mínima:'), sg.InputText('1', key='min_dist')],
-            [sg.Text('Distância Máxima:'), sg.InputText('3', key='max_dist')],
-            
-            [sg.Button('Executar')],
-            [sg.Text('', key='output')]
+            [sg.Text('Número de Cidades:'), sg.InputText(key='num_cidades')],
+            [sg.Text('Distância Mínima:'), sg.InputText(key='min_dist')],
+            [sg.Text('Distância Máxima:'), sg.InputText(key='max_dist')],
+            [sg.Button('Executar')]
+            #[sg.Text('', key='output')]
         ]
         self.window = sg.Window('Algoritmo Genético para TSP', self.layout)
 
@@ -36,8 +35,12 @@ class Interface:
                 algoritmo_genetico = AlgoritmoGenetico(num_cidades, TAMANHO_POPULACAO, TAXA_CRUZAMENTO, TAXA_MUTACAO, NUMERO_GERACOES, IG, tsp)
 
                 # Executa o algoritmo
-                melhor_solucao, melhor_distancia = algoritmo_genetico.run()
-                self.window['output'].update(f'Melhor solução: {melhor_solucao}\nMelhor distância: {melhor_distancia:.2f}')
-                
+                melhor_caminho, melhor_distancia, distancia_inicial, ganho = algoritmo_genetico.run()
+                sg.popup(
+                    f'Melhor distância inicial: {distancia_inicial:.2f}\n'
+                    f'Melhor solução: {melhor_caminho}\n'
+                    f'Melhor distância final: {melhor_distancia:.2f}\n'
+                    f'Ganho: {ganho:.2f}%'
+                    )
 
         self.window.close()

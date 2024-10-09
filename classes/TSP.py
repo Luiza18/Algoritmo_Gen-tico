@@ -8,6 +8,7 @@ class TSP():
         self.__ditancia_matrix = self.__gerar_problema()
 
     def __gerar_problema(self):
+        #print(random.randint(self.__min_dist,self.__max_dist,(self.__numero_cidades,self.__numero_cidades)))
         return random.randint(self.__min_dist,self.__max_dist,(self.__numero_cidades,self.__numero_cidades))
 
     def calcular_distancia(self, caminho:list):

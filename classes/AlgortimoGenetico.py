@@ -86,11 +86,17 @@ class AlgoritmoGenetico:
     def run(self):
         # Executa o algoritmo genético
         self.__avalia_fitness()
+
         for geracao in range(self.__geracoes):
             self.__evolucao()
             self.__avalia_fitness()
             melhor_individuo = max(self.__populacao, key=lambda ind: ind.get_fitness)
-            print(f"Geração {geracao}: Melhor distância = {1 / melhor_individuo.get_fitness}")
+            if geracao == 1:
+                melhor_individuo_inicial = 1 / melhor_individuo.get_fitness
+            #print(f"Geração {geracao}: Melhor distância = {1 / melhor_individuo.get_fitness}")
 
+       
         melhor_solucao = max(self.__populacao, key=lambda ind: ind.get_fitness)
-        return melhor_solucao.get_cromossomo, 1 / melhor_solucao.get_fitness
+        melhor_individuo_final = 1 / melhor_solucao.get_fitness
+        ganho = 100 * ((melhor_individuo_inicial - melhor_individuo_final) / melhor_individuo_inicial)
+        return melhor_solucao.get_cromossomo, melhor_individuo_final, melhor_individuo_inicial, ganho
