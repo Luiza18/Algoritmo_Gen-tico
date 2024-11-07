@@ -7,9 +7,17 @@ class TSP():
         self.__max_dist = max_dist
         self.__ditancia_matrix = self.__gerar_problema()
 
+    @property 
+    def get_matrix(self):
+        return self.__ditancia_matrix
+
     def __gerar_problema(self):
-        #print(random.randint(self.__min_dist,self.__max_dist,(self.__numero_cidades,self.__numero_cidades)))
-        return random.randint(self.__min_dist,self.__max_dist,(self.__numero_cidades,self.__numero_cidades))
+        matriz = random.randint(self.__min_dist, self.__max_dist, (self.__numero_cidades, self.__numero_cidades))
+        
+        # Definir a diagonal (distância de uma cidade para ela mesma) como 0
+        for i in range(self.__numero_cidades):
+            matriz[i][i] = 0
+        return matriz
 
     def calcular_distancia(self, caminho:list):
         distancia = 0
